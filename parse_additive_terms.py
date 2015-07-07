@@ -40,7 +40,7 @@ def split_equation_string_to_dictionary(equation, multipliers, free_term = free_
         Example: for "- deposit * deposit_ir"
                     sign is -1
                     variable is 'deposit'
-                    multiplier is '' 
+                    multiplier is 'deposit_ir' 
                     and result of evaluation is -0.05
                     -0.05  is written to resulting dictionary. 
     """
