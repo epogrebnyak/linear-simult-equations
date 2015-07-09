@@ -12,7 +12,7 @@ multipliers = {
 equations =  [
 	'ta = credit + liq'
 ,	'liq = credit * liq_share'
-,	'profit = credit * credit_ir - deposit * deposit_ir'
+,	'profit = credit * credit_ir - deposit_ir * deposit' 
 ,	'fgap = ta - capital - profit - deposit'
 ]
 
