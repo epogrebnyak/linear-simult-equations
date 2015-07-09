@@ -1,7 +1,6 @@
 """
    Test case to convert text strings to DataFrame-friendly dictionary.
 
-   Suggested library: Sympy
 """
 multipliers = {
 	'liq_share':  0.2
