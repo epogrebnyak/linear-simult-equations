@@ -21,9 +21,9 @@ csvfile.ix[:, 1] = csvfile.ix[:, 1].str.strip()
 
 multiplier_directives = csvfile[csvfile.ix[:, 0] == 'multiplier']
 multipliers = dict(multiplier_directives.ix[:,1:3].values)
-print 'Multipliers'
+print ('Multipliers')
 pprint(multipliers)
-print '---'
+print ('---')
 #multipliers = {
 #	'liq_share':  .20
 #,	'credit_ir': .10
@@ -32,9 +32,9 @@ print '---'
 
 equation_directives = csvfile[csvfile.ix[:, 0] == 'equation']
 equations = equation_directives.ix[:,1].values.tolist()
-print 'Equations'
+print ('Equations')
 pprint(equations)
-print '--'
+print ('--')
 #equations =  [
 #	'ta = credit + liq'
 #,	'liq = credit * liq_share'
@@ -44,9 +44,9 @@ print '--'
 
 value_directives = csvfile[csvfile.ix[:, 0] == 'value']
 values = dict(value_directives.ix[:,(1,3)].values)
-print 'Values'
+print ('Values')
 pprint(values)
-print '--'
+print ('--')
 #values = {
 #	'capital': 100
 #,	'credit': 500
@@ -57,9 +57,9 @@ print '--'
 #x = solve_lin_system(multipliers, equations, values)
 from string2sim import make_full_dict_list, get_x_solution
 full_equation_set =  make_full_dict_list(multipliers, equations, values)
-print 'Equation set'
+print ('Equation set')
 pprint(full_equation_set)
-print '--'
+print ('--')
 x = get_x_solution(full_equation_set)
 print (x)
 

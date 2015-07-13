@@ -28,4 +28,4 @@ equation	avg_deposit = half * deposit + half * deposit_lag
 equation	profit = avg_credit * credit_ir - avg_deposit * deposit_ir	
 equation	fgap = ta - capital - profit - deposit	
 equation	capital = capital_lag	
-equation	period = period_lag + one	
+equation	period = period_lag + one_lag	
