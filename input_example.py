@@ -34,7 +34,7 @@ def get_equations_as_list(csvfile):
     return list(get_csv_block_as_dict(csvfile, 'equation').keys())
     
 multipliers = get_multipliers_as_dict(csvfile)
-values      = get_values_as_dict(csvfile, period)
+values      = get_values_as_dict(csvfile, 0)
 equations   = get_equations_as_list(csvfile)
 
 print ('\nMultipliers:')
