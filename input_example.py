@@ -11,9 +11,9 @@ from string2sim import solve_lin_system
 # use period 0 data
 
 multipliers = {		
-	'liq_share':  20/100	
-,	'credit_ir': 10/100	
-,	'deposit_ir': 5/100	
+	'liq_share':  .20	
+,	'credit_ir': .10	
+,	'deposit_ir': .05	
 }		
 		
 equations =  [		
