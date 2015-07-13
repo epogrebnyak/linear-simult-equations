@@ -26,14 +26,14 @@ def get_csv_block_as_dict(csvfile, pivot_label, val_col = 2, key_col = 1):
     return  value_dict
 
 def get_multipliers_as_dict(csvfile):
-    return get_csv_block_as_dict(csvfile, 'multiplier')    
-    
+    return get_csv_block_as_dict(csvfile, 'multiplier')
+
 def get_values_as_dict(csvfile, period):
     return get_csv_block_as_dict(csvfile, 'value', val_col = 2 + period)
 
 def get_equations_as_list(csvfile):
     return list(get_csv_block_as_dict(csvfile, 'equation').keys())
-    
+
 multipliers = get_multipliers_as_dict(csvfile)
 values      = get_values_as_dict(csvfile, 0)
 equations   = get_equations_as_list(csvfile)
@@ -45,22 +45,12 @@ pprint(values)
 print ('\nEquations:')
 pprint(equations)
 
-# # multiplier_directives = csvfile[csvfile.ix[:, 0] == 'multiplier']
-# # multipliers = dict(multiplier_directives.ix[:,1:3].values)
-# # print ('Multipliers')
-# # pprint(multipliers)
-# # print ('---')
 # multipliers = {
 	# 'liq_share':  .20
 # ,	'credit_ir': .10
 # ,	'deposit_ir': .05
 # }
 
-# # equation_directives = csvfile[csvfile.ix[:, 0] == 'equation']
-# # equations = equation_directives.ix[:,1].values.tolist()
-# # print ('Equations')
-# # pprint(equations)
-# # print ('--')
 # equations =  [
 	# 'ta = credit + liq'
 # ,	'liq = credit * liq_share'
@@ -68,19 +58,12 @@ pprint(equations)
 # ,	'fgap = ta - capital - profit - deposit'
 # ]
 
-# # value_directives = csvfile[csvfile.ix[:, 0] == 'value']
-# # values = dict(value_directives.ix[:,(1,2)].values)
-# # print ('Values')
-# # pprint(values)
-# # print ('--')
 # values = {
 	# 'capital': 100
 # ,	'credit': 500
 # ,	'deposit': 300
 # }
 
-# WARNING: solve_lin_system is undefined
-#x = solve_lin_system(multipliers, equations, values)
 from string2sim import make_full_dict_list, get_x_solution
 full_equation_set =  make_full_dict_list(multipliers, equations, values)
 print ('Equation set')
@@ -108,32 +91,42 @@ data1 = pd.DataFrame(np.array(values),
                      columns=['x'])
 
 # Our result contains more variables than
-# what we have in x.
+# what we have in x, do we need to match them?
 print(x.ix[data1.index])
 print(data1)
+
+# To actually assert their equality use np.allclose()
+print('Matching values?', np.allclose(data1, x.ix[data1.index]))
 
 #TODO 3:
 # write back 'x' to corresponding 'value' rows in period 1 in csv sheet input.tab using pandas
 
-def floatcomma(f):
-    return ('%.2f' % f).replace('.', ',')
-
 def write_tabfile(values, equations, multipliers, tabfile):
-    with open(tabfile, 'w') as fd:
-        fd.write('\tValues\t\n')
-        [fd.write('value\t%s\t%s\n' % (name, floatcomma(value)))
-            for name, value in values.items()]
+    '''Write a csv file for a linear system.
 
-        fd.write('\n')
-        fd.write('\tMultipliers:\t\n')
-        [fd.write('multiplier\t%s\t%s\n' % (name, floatcomma(value)))
-            for name, value in multipliers.items()]
+    Parameters:
+    values: dictionary of variable values
+    equations: list of strings representing relationships
+    multipliers: dicionary of multipliers
+    tabfile: output filename
+    '''
 
-        fd.write('\n')
-        fd.write('\tEquations:\t\n')
-        [fd.write('equation\t%s\t\n' % value) for value in equations]
+    fields = []
+    fields.append([None, 'Values', None, None])
+    [fields.append(['value', name, value, None])
+                      for name, value in values.items()]
 
-write_tabfile(x['x'].to_dict(), equations, multipliers, 'tabfile')
+    fields.append([None, None, None, None])
+    fields.append([None, 'Multipliers:', None, None])
+    [fields.append(['multiplier', name, value, None])
+                       for name, value in multipliers.items()]
 
-csvfile = pd.read_csv('tabfile', sep='\t', skip_blank_lines=True, decimal=',')
-print(csvfile)
+    fields.append([None, None, None, None])
+    fields.append([None, 'Equations:', None, None])
+    [fields.append(['equation', name, None, None])
+                    for name in equations]
+
+    df = pd.DataFrame(fields)
+    df.to_csv(tabfile, sep='\t', decimal=',', header=False, index=False)
+
+write_tabfile(x['x'].to_dict(), equations, multipliers, 'output.tab')
