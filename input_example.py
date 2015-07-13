@@ -43,7 +43,7 @@ print ('--')
 #]
 
 value_directives = csvfile[csvfile.ix[:, 0] == 'value']
-values = dict(value_directives.ix[:,(1,3)].values)
+values = dict(value_directives.ix[:,(1,2)].values)
 print ('Values')
 pprint(values)
 print ('--')
