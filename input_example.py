@@ -1,5 +1,6 @@
 #from string2sim import solve_lin_system
 import pandas as pd
+import numpy as np
 from pprint import pprint
 
 # TODO 1:
@@ -96,10 +97,43 @@ dict1 = {	'period'	:	1
 ,	'profit'	:	7.23
 ,	'fgap'	:	1.77
 ,	'one'	:	1	}
-print (dict1)
+
 # CHECK 1:
 # change dict1 type to nparray
 # compare dict_1 to x
 
+variables, values = zip(*dict1.items())
+data1 = pd.DataFrame(np.array(values),
+                     index=variables,
+                     columns=['x'])
+
+# Our result contains more variables than
+# what we have in x.
+print(x.ix[data1.index])
+print(data1)
+
 #TODO 3:
 # write back 'x' to corresponding 'value' rows in period 1 in csv sheet input.tab using pandas
+
+def floatcomma(f):
+    return ('%.2f' % f).replace('.', ',')
+
+def write_tabfile(values, equations, multipliers, tabfile):
+    with open(tabfile, 'w') as fd:
+        fd.write('\tValues\t\n')
+        [fd.write('value\t%s\t%s\n' % (name, floatcomma(value)))
+            for name, value in values.items()]
+
+        fd.write('\n')
+        fd.write('\tMultipliers:\t\n')
+        [fd.write('multiplier\t%s\t%s\n' % (name, floatcomma(value)))
+            for name, value in multipliers.items()]
+
+        fd.write('\n')
+        fd.write('\tEquations:\t\n')
+        [fd.write('equation\t%s\t\n' % value) for value in equations]
+
+write_tabfile(x['x'].to_dict(), equations, multipliers, 'tabfile')
+
+csvfile = pd.read_csv('tabfile', sep='\t', skip_blank_lines=True, decimal=',')
+print(csvfile)
