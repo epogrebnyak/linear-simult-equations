@@ -1,6 +1,6 @@
 """
-   Test case to convert text strings to DataFrame-friendly dictionary.
-
+   Functions and test case to convert text strings to 
+   DataFrame-friendly dictionary.
 """
 multipliers = {
 	'liq_share':  0.2
@@ -11,10 +11,12 @@ multipliers = {
 equations =  [
 	'ta = credit + liq'
 ,	'liq = credit * liq_share'
-,	'profit = credit * credit_ir - deposit_ir * deposit' 
+# note different order of var and multiplier
+,	'profit = credit * credit_ir - deposit * deposit_ir ' 
 ,	'fgap = ta - capital - profit - deposit'
 ]
 
+# duplicate
 free_term_var = 'b'
 
 # from equations and values we must get follwoing:
@@ -26,33 +28,36 @@ structured_equations = [
 ,	{'fgap':-1,    free_term_var:0, 'ta':1, 'capital':-1, 'profit':-1, 'deposit': -1}
 ]
 
-def split_multiplicative_term(sign,multiplicativeterm,multipliers):
+def split_multiplicative_term(sign, multiplicative_term, multipliers):
     """ parses a multiplicative term of form "A * B" to a tuple
-
     identifies which of A or B is a multiplier, then returns tuple
     where first element is the variable name and the second element
-    is the numeric value of multiplier times sign
+    is the numeric value of multiplier times 'sign'. multiplier is detected 
+    if its variable name is in 'multipliers'
     """
     #split the multiplicative term by "*" operator
-    mt = multiplicativeterm.split("*")
+    mt = multiplicative_term.split("*")
 
     #check if first element is in multipliers
-    if mt[0].strip() in multipliers:
-        return (mt[1].strip(),sign*multipliers[mt[0].strip()])
+    if mt[0].strip() in multipliers:        
+        general_var = mt[1].strip()        
+        multiplier_var_name = mt[0].strip()
+        # return (mt[1].strip(),sign * multipliers[mt[0].strip()])
     else:
         #otherwise the second element is the multiplier
-        return (mt[0].strip(),sign*multipliers[mt[1].strip()])
+        general_var = mt[0].strip()        
+        multiplier_var_name = mt[1].strip()
+        # return (mt[0].strip(),sign * multipliers[mt[1].strip()])
+    return general_var, sign * multipliers[multiplier_var_name]
 
 def split_equation_string_to_dictionary(equation, multipliers, free_term = free_term_var):
     """
     Must return a dictionary as in 'structured_equations'.
     Only parses combinations of "+ - *", variable names, members of multipliers dictionary
     Rules:
-
     Easy ones:
     1. left-hand side variable ('ta', 'liq') is assigned -1
     2. free_term always 0
-
     The gist of it:
     3. all right-hand additive terms must be split into sign, variable, and multiplier and evaluated
         Example: for "- deposit * deposit_ir"
@@ -104,6 +109,6 @@ def split_equation_string_to_dictionary(equation, multipliers, free_term = free_
                     eq_dict[k.strip()] = 1
     return eq_dict
 
-
-flag = [split_equation_string_to_dictionary(eq, multipliers) for eq in equations] == structured_equations
-print (flag)
+if __name__ == "__main__":
+  flag = [split_equation_string_to_dictionary(eq, multipliers) for eq in equations] == structured_equations
+  print (flag)
