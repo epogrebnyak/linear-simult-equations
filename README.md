@@ -7,6 +7,6 @@ We define A and B based on some input and find x using Numpy ```x = np.linalg.so
 
 Matrix A and B can be defined as a dictionary of multipliers, start values and equations written as text srtings.
 
-<parse_additive_terms.py> contains routines to split equations written as text srtings to a matrix.
+[parse_additive_terms.py](parse_additive_terms.py) contains routines to split equations written as text srtings to a matrix.
 
-<string2sim.py> contains full example. 
+[string2sim.py](string2sim.py) contains full example. 
