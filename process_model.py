@@ -239,9 +239,7 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
         check_x_against_reference(x, ref = get_ref_array())
     
     # save results
-    # TODO: must save array/dataframe/list holding results for all periods
-    pprint(x)
-    pprint(values)    
+    # TODO: must save array/dataframe/list holding results for all periods  
     def _get_result_as_dict(x, values):     
         result_fields = [k.replace('_lag', '') for k in values]
         return x.ix[result_fields].to_dict()['x']       
@@ -250,11 +248,8 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
     
     
 if __name__ == "__main__":
-    # this is reference 
-    process_model
   
-  testfiles = 
-          [ ('input.tab', 'output.tab') # this is baseline dataset (periods 0 and 1 only)
+     testfiles =  [ ('input.tab', 'output.tab') # this is baseline dataset (periods 0 and 1 only)
                                         # sheet 'input_one_period' in examples.xls
          ,  ('input2.tab', 'output3.tab') 
                                         # this is dataset with several periods
@@ -263,14 +258,17 @@ if __name__ == "__main__":
                                         # this is dataset with several periods and no lag virables
                                         # sheet 'input_multiple_period_nolag' in examples.xls
            ]
-    
-    
-    
-    try: 
-       process_model('input_5periods.tab', 'output_5periods.tab')
-    except:
-       print("Cannot process: " + 'input_5periods.tab')
-    
+           
+     for pair in testfiles:
+        _in  = pair[0]
+        _out = pair[1]
+            
+        try: 
+           process_model(_in, _out)
+           print("Done processing:" + _in)
+        except:
+           print("Cannot process: " + _in)
+        
 # 2015-07-14 04:36 PM    
 # FOLLOW-UP 1: equation parser change
 #         1.1    period = period_lag + 1
