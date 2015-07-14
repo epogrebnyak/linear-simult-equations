@@ -12,9 +12,48 @@ equations =  [
 	'ta = credit + liq'
 ,	'liq = credit * liq_share'
 # note different order of var and multiplier
-,	'profit = credit * credit_ir - deposit * deposit_ir ' 
+,	'profit = credit * credit_ir - deposit_ir * deposit' 
 ,	'fgap = ta - capital - profit - deposit'
 ]
+
+
+# TODO: must change parsing so that 'new_equations' can be parsed
+# 'period = period_lag + 1'
+# 'avg_credit = 0.5 * credit + 0.5 * credit_lag'
+# can be parsed to 
+# new_structured_equations = [
+#    {free_term_var:-1, 'period_lag': 1, 'period': -1}
+#,	{'avg_credit': -1, free_term_var:0, 'credit': 0.5, 'credit':0.5}]
+#
+
+# This is hopefully done through: 1 and 2 below
+
+# 1. must change split_multiplicative_term(sign, multiplicative_term, multipliers, ...)
+# to accept 'avg_credit = 0.5 * credit + 0.5 * credit_lag'
+# 'avg_credit = 0.5 * credit + 0.5 * credit_lag'
+# split_multiplicative_term(1, '0.5 * credit_lag', ...) must 
+# return  'credit_lag', 0.5 
+
+# 2. split_multiplicative_term(1, '1', ...) must return
+# return free_term_var, -1     
+
+
+# , ...) denotes extra arguments that split_multiplicative_term() might need.
+# I think that should be a proper list of variables
+
+# Overall there can be differetn strategies for split_multiplicative_term:
+# Implemented:
+#    pass a list of muiltipliers, everything else near * sign is a variable name
+# Possible:
+#    pass a list of muiltipliers, apss a list of variable name, try if everything else is an int/float
+#
+# please comment/discuss
+
+
+new_equations = [
+'period = period_lag + 1',
+'avg_credit = 0.5 * credit + 0.5 * credit_lag']
+
 
 # duplicate
 free_term_var = 'b'
@@ -27,6 +66,13 @@ structured_equations = [
 ,	{'profit': -1, free_term_var:0, 'credit': 0.1, 'deposit':-0.05}
 ,	{'fgap':-1,    free_term_var:0, 'ta':1, 'capital':-1, 'profit':-1, 'deposit': -1}
 ]
+
+
+new_structured_equations = [
+    {free_term_var:-1, 'period_lag': 1, 'period': -1}
+,	{'avg_credit': -1, free_term_var:0, 'credit': 0.5, 'credit':0.5}]
+
+
 
 def split_multiplicative_term(sign, multiplicative_term, multipliers):
     """ parses a multiplicative term of form "A * B" to a tuple
