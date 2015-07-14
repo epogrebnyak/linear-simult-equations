@@ -87,7 +87,7 @@ def get_equations_as_list(csv_file_df):
 #           better - take 
 #              raw_df = pd.read_csv(csv_file, sep='\t', skip_blank_lines=True, decimal=',')
 #          and poppulate it with new values for different periods for 'values' part    
-#          may leave 'equations' and 'multipliers' intact (mark ar WARNING though because it hides 
+#          may leave 'equations' and 'multipliers' intact (mark as WARNING though because it hides 
 #          values actually used in computation)
 #          This way the call will be:
 #                create_output_df(values, csvfile):
@@ -133,8 +133,7 @@ def write_csv_tabfile(df, tabfile):
     """       
     df.to_csv(tabfile, sep='\t', decimal=',', header=False, index=False)
 
-    # TODO: dump_csv_output() should  be dump_csv_output(output_df, output_csv_file)   
-    
+       
 def dump_csv_output(values0, values1, equations, multipliers, tabfile):
     """
     Writes results to output 'tabfile'.
@@ -244,7 +243,8 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
         result_fields = [k.replace('_lag', '') for k in values]
         return x.ix[result_fields].to_dict()['x']       
     # TODO: dump_csv_output() should  be dump_csv_output(output_df, output_csv_file)    
-    dump_csv_output(values, _get_result_as_dict(x, values), equations, multipliers, output_csv_file)    
+    dump_csv_output(values, _get_result_as_dict(x, values), equations, multipliers, output_csv_file) 
+    values = multipliers = equations = None    
     
     
 if __name__ == "__main__":
@@ -265,7 +265,7 @@ if __name__ == "__main__":
             
         try: 
            process_model(_in, _out)
-           print("Done processing:" + _in)
+           print("Done processing: " + _in)
         except:
            print("Cannot process: " + _in)
         

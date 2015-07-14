@@ -79,6 +79,7 @@ new_structured_equations = [
 
 def is_number(s):
     '''Test if str "s" is a number'''
+    # EP: clear, like it
     try:
         float(s)
         return True
@@ -87,6 +88,7 @@ def is_number(s):
 
 def assign_type(s, multipliers):
     '''Assign type for variable between number, multiplier, variable'''
+    # EP: clear, like it
     if is_number(s):
         return 'constant'
     elif s in multipliers:
@@ -101,23 +103,28 @@ def split_multiplicative_term(sign, multiplicative_term, multipliers):
     where first element is the variable name and the second element
     is the numeric value of multiplier (or the constant) times 'sign'. multiplier is detected
     if its variable name is in 'multipliers'.
-
-    Special case is when multiplicative_term is '1', in this case
-    we return the free_term_var with value sign * 1
     """
-    # Special case: 1
-    if multiplicative_term.strip() == '1':
-        return free_term_var, -1
-
+    # Special case is when multiplicative_term is '1', in this case
+    # we return the free_term_var with value sign * 1
+    
+    
+    ## Special case: 1
+    #if multiplicative_term.strip() == '1':
+    #    return free_term_var, -1
+    # this case is considered in line below
+    #    elif is_number(token):
+    
+    
     # Split the multiplicative term by "*" operator
     o1, o2 = [o.strip() for o  in multiplicative_term.split("*")]
 
-    o1_t = assign_type(o1, multipliers)
-    o2_t = assign_type(o2, multipliers)
+    # EP: changed naming
+    o1_type = assign_type(o1, multipliers)
+    o2_type = assign_type(o2, multipliers)
 
     # Assign each variable to its type: variable, constant or multiplier
-    term = { o1_t : o1,
-             o2_t : o2 }
+    term = { o1_type : o1,
+             o2_type : o2 }
 
     # Assert input is well-formed
     if 'variable' not in term or len(term) == 1:
@@ -158,6 +165,12 @@ def split_equation_string_to_dictionary(equation, multipliers, free_term = free_
     rhs = equation.split("=")[1].strip()
 
     # Split string into tokens, terms and operations
+
+    # Example of re.split: 
+    #    > z = 'as + ee * 3 - 1'
+    #    > [i.strip() for i in re.split(r'([+-])', z) if i]
+    #    > ['as', '+', 'ee * 3', '-', '1']
+    
     tokens = [i.strip() for i in re.split(r'([+-])', rhs) if i]
 
     sign = 1 # Default sign
@@ -172,15 +185,32 @@ def split_equation_string_to_dictionary(equation, multipliers, free_term = free_
 
         # Here we hit an actual expression and we add it to dictionary
         # we need to make sure to reset the sign as well
-        elif token == '1':
-            key, val = split_multiplicative_term(sign, token, multipliers)
-            eq_dict[key] = val
-            sign = 1
+        
+        # EP-COMMENT: is this of any help to start a new 'if' here?
+        
+        # elif token == '1':          
+        #    key, val = split_multiplicative_term(sign, token, multipliers)
+        #    eq_dict[key] = val
+        #    sign = 1
+        elif is_number(token):
+            eq_dict[free_term] = -1 * sign * float(token)
+            sign = 1            
+            # EP-COMMENT:  here we check if token is a number with 
+            #             is_number(token), if true, then assign 
+            #             eq_dict[free_term] = -1 * sign * float(token)
+            #             this appeals me as more general solution (not just 1 can be in 
+            #             formulas, but any number) and also keeps split_multiplicative_term()
+            #             as a specialised function for ('*' in token) case, without 
+            #             special case for '1' inside it.
+            #             Or token == '1' had any kind of special meaning?  
         elif '*' in token:
             key, val = split_multiplicative_term(sign, token, multipliers)
             eq_dict[key] = val
             sign = 1
         else:
+            # EP-COMMENT: 
+            # what would be string if token gets here? "a + b - "?  
+            # intuitively last else should raise some exception or warning that things did not go right
             eq_dict[token] = sign
             sign = 1
 
@@ -219,6 +249,7 @@ def split_equation_string_to_dictionary(equation, multipliers, free_term = free_
     # return eq_dict
 
 if __name__ == "__main__":
+  # EP: glad you inserted tests! 
   from pprint import pprint
   flag = [split_equation_string_to_dictionary(eq, multipliers) for eq in equations] == structured_equations
   pprint([split_equation_string_to_dictionary(eq, multipliers) for eq in equations])
