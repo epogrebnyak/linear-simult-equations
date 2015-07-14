@@ -1,4 +1,4 @@
-#from string2sim import solve_lin_system
+from string2sim import solve_lin_system
 import pandas as pd
 import numpy as np
 from pprint import pprint
@@ -8,17 +8,33 @@ from pprint import pprint
 #     strip whitespace in second column
 #     comma is decimal sign here, 1,15 is 1.15
 #     separator is  \t tab
+# EP: done
 
-# Dirty parse of the input file
-csvfile = pd.read_csv('input.tab', sep='\t', skip_blank_lines=True, decimal=',')
-# Remove useless rows
-csvfile = csvfile[csvfile.ix[:, 0].notnull()]
-# Strip whitespace from second column
-csvfile.ix[:, 1] = csvfile.ix[:, 1].str.strip()
+def read_input_dataframe_from_csv(csv_file):
+     """
+     Comment: the intent is to be able to switch to reading/writing xls files later.
+     Not todo now.
+     """
+     # Dirty parse of the input file
+     raw_df = pd.read_csv(csv_file, sep='\t', skip_blank_lines=True, decimal=',')
+     return raw_df
 
+def parse_input_dataframe(input_df):    
+    # Remove useless rows
+    input_df = input_df[input_df.ix[:, 0].notnull()]
+    # Strip whitespace from second column, where formulas are located    
+    input_df.ix[:, 1] = input_df.ix[:, 1].str.strip()
+    return input_df
+
+def get_input_df(csv_file):
+    input_df = read_input_dataframe_from_csv(csv_file)
+    return  parse_input_dataframe(input_df)    
+     
+     
 # TODO 2:
-# produce 'mutipliers', 'equations', 'values 'in data structures similar to ones below
+# produce 'mutipliers', 'equations', 'values 'in data structures 
 # use period 0 data
+# EP: done
 
 def get_csv_block_as_dict(csvfile, pivot_label, val_col = 2, key_col = 1):
     directives = csvfile[csvfile.ix[:, 0] == pivot_label]
@@ -34,87 +50,21 @@ def get_values_as_dict(csvfile, period):
 def get_equations_as_list(csvfile):
     return list(get_csv_block_as_dict(csvfile, 'equation').keys())
 
-multipliers = get_multipliers_as_dict(csvfile)
-values      = get_values_as_dict(csvfile, 0)
-equations   = get_equations_as_list(csvfile)
-
-print ('\nMultipliers:')
-pprint(multipliers)
-print ('\nValues:')
-pprint(values)
-print ('\nEquations:')
-pprint(equations)
-
-# multipliers = {
-	# 'liq_share':  .20
-# ,	'credit_ir': .10
-# ,	'deposit_ir': .05
-# }
-
-# equations =  [
-	# 'ta = credit + liq'
-# ,	'liq = credit * liq_share'
-# ,	'profit = credit * credit_ir - deposit * deposit_ir'
-# ,	'fgap = ta - capital - profit - deposit'
-# ]
-
-# values = {
-	# 'capital': 100
-# ,	'credit': 500
-# ,	'deposit': 300
-# }
-
-from string2sim import make_full_dict_list, get_x_solution
-full_equation_set =  make_full_dict_list(multipliers, equations, values)
-print ('Equation set')
-pprint(full_equation_set)
-print ('--')
-x = get_x_solution(full_equation_set)
-print (x)
-
-dict1 = {	'period'	:	1
-,	'credit'	:	115
-,	'liq'	:	23
-,	'capital'	:	30
-,	'deposit'	:	99
-,	'profit'	:	7.23
-,	'fgap'	:	1.77
-,	'one'	:	1	}
-
-# CHECK 1:
-# change dict1 type to nparray
-# compare dict_1 to x
-
-variables, vals = zip(*dict1.items())
-data1 = pd.DataFrame(np.array(vals),
-                     index=variables,
-                     columns=['x'])
-
-
-# Our result contains more variables than
-# what we have in x, do we need to match them?
-
-# WARNING we need to add one, because it is not present
-x.ix['one'] = 1.000
-
-print(x.ix[data1.index])
-print(data1)
-# To actually assert their equality use np.allclose()
-print('Matching values?', np.allclose(data1, x.ix[data1.index]))
-
-#TODO 3:
+# TODO 3:
 # write back 'x' to corresponding 'value' rows in period 1 in csv sheet input.tab using pandas
+# EP: done
 
-def write_tabfile(values0, values1, equations, multipliers, tabfile):
-    '''Write result to csv file.
+def create_output_df(values0, values1, equations, multipliers):
+    """
+    Returns a dataframe, replicating input.tab structure 
 
     Parameters:
     values0: dictionary of variable values at lag 0
     values1: dictionary of variable values at lag 1
     equations: list of strings representing relationships
     multipliers: dicionary of multipliers
-    tabfile: output filename
-    '''
+    """
+
     fields = []
     fields.append([None, 'Values', None, None])
     [fields.append(['value', name, values0[name], values1[name.replace('_lag', '')]])
@@ -129,9 +79,78 @@ def write_tabfile(values0, values1, equations, multipliers, tabfile):
     fields.append([None, 'Equations:', None, None])
     [fields.append(['equation', name, None, None])
                     for name in equations]
+    return pd.DataFrame(fields)
 
-    df = pd.DataFrame(fields)
+def write_csv_tabfile(df, tabfile):
+    """
+    Write resulting dataframe to a csv file.
+    
+    Parameters:
+    df: resulting dataframe
+    tabfile: output filename
+    """       
     df.to_csv(tabfile, sep='\t', decimal=',', header=False, index=False)
 
-result_fields = [k.replace('_lag', '') for k in values]
-write_tabfile(values, x.ix[result_fields].to_dict()['x'], equations, multipliers, 'output.tab')
+def dump_csv_output(values0, values1, equations, multipliers, tabfile):
+    df = create_output_df(values0, values1, equations, multipliers)
+    write_csv_tabfile(df, tabfile)    
+
+def get_ref_array():
+    dict1 = {	'period'	:	1
+    ,	'credit'	:	115
+    ,	'liq'	:	23
+    ,	'capital'	:	30
+    ,	'deposit'	:	99
+    ,	'profit'	:	7.23
+    ,	'fgap'	:	1.77
+    }
+
+    variables, vals = zip(*dict1.items())
+    data1 = pd.DataFrame(np.array(vals),
+                         index=variables,
+                         columns=['x'])
+    return data1
+    
+if __name__ == "__main__":
+
+    df = get_input_df('input.tab')
+    multipliers = get_multipliers_as_dict(df)
+    values      = get_values_as_dict(df, 0)
+    equations   = get_equations_as_list(df)
+
+    print ('\nMultipliers:')
+    pprint(multipliers)
+    print ('\nValues:')
+    pprint(values)
+    print ('\nEquations:')
+    pprint(equations)
+    
+    # solving the system:
+    x = solve_lin_system(multipliers, equations, values)
+
+    # CHECK 1:
+    # change dict1 type to nparray
+    # compare dict_1 to x
+
+    data1 = get_ref_array()
+    print("Reference data:")
+    print(data1)
+
+    print("Found solution:")
+    print(x.ix[data1.index])
+
+    # To actually assert their equality use np.allclose()
+    print('Matching values?', np.allclose(data1, x.ix[data1.index]))
+        
+        
+    result_fields = [k.replace('_lag', '') for k in values]
+    result_fields_as_dict = x.ix[result_fields].to_dict()['x']
+    
+    dump_csv_output(values, result_fields_as_dict, equations, multipliers, 'output.tab')
+
+#FOLLOW-UP 1: equation parser change
+#                 period = period_lag + 1
+#                 avg_credit = 0.5 * credit + 0.5 * credit_lag
+#FOLLOW-UP 2: multi-period 
+#FOLLOW-UP 3: lagged variable not shown in input file 
+#FOLLOW-UP 4: xls io
