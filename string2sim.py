@@ -121,9 +121,4 @@ if __name__ == "__main__":
     
     for lst in (['liq', 'credit', 'ta'],
                 ['capital', 'profit', 'deposit', 'fgap', 'ta']):
-        pprint( x.loc[lst,:])        
-    
-    
-    
-
-
+        pprint( x.loc[lst,:]) 
