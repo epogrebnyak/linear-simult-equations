@@ -1,0 +1,40 @@
+	Variables					
+value	period	0	1	2	4	5
+value	credit	100				
+value	liq	20				
+value	capital	30				
+value	deposit	90				
+value	profit	0				
+value	fgap	0				
+value	one	1				
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+	Multipliers:					
+multiplier	credit_rog    	1,15	1,15	1,15	1,15	1,15
+multiplier	deposit_rog   	1,10	1,10	1,10	1,10	1,10
+multiplier	credit_ir     	0,12	0,12	0,12	0,12	0,12
+multiplier	deposit_ir    	0,06	0,06	0,06	0,06	0,06
+multiplier	liq_to_credit 	0,20	0,20	0,20	0,20	0,20
+multiplier	half 	0,50	0,50	0,50	0,50	0,50
+						
+	Equations:					
+equation	credit = credit_lag * credit_rog 					
+equation	deposit = deposit_lag * deposit_rog 					
+equation	liq    = credit * liq_to_credit					
+equation	ta     = credit + liq					
+	# must use a 'half' constant below due to simplistic parser					
+equation	avg_credit = half * credit + half * credit_lag  					
+equation	avg_deposit = half * deposit + half * deposit_lag  					
+equation	profit = avg_credit * credit_ir - avg_deposit * deposit_ir					
+equation	fgap = ta - capital - profit - deposit					
+equation	capital = capital_lag					
+	# must use a 'one' constant below due to simplistic parser					
+equation	period = period_lag + one					
