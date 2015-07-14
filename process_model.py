@@ -244,14 +244,15 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
         return x.ix[result_fields].to_dict()['x']       
     # TODO: dump_csv_output() should  be dump_csv_output(output_df, output_csv_file)    
     dump_csv_output(values, _get_result_as_dict(x, values), equations, multipliers, output_csv_file) 
-    values = multipliers = equations = None    
+  
     
     
 if __name__ == "__main__":
-  
-     testfiles =  [ ('input.tab', 'output.tab') # this is baseline dataset (periods 0 and 1 only)
+    import sys
+    case = int(sys.argv[1])
+    testfiles =  [ ('input.tab', 'output.tab') # this is baseline dataset (periods 0 and 1 only)
                                         # sheet 'input_one_period' in examples.xls
-         ,  ('input2.tab', 'output3.tab') 
+         ,  ('input2.tab', 'output2.tab') 
                                         # this is dataset with several periods
                                         # sheet 'input_multiple_period' in examples.xls
          ,  ('input3.tab', 'output3.tab') 
@@ -259,15 +260,19 @@ if __name__ == "__main__":
                                         # sheet 'input_multiple_period_nolag' in examples.xls
            ]
            
-     for pair in testfiles:
+    for pair in testfiles:
         _in  = pair[0]
         _out = pair[1]
             
         try: 
-           process_model(_in, _out)
-           print("Done processing: " + _in)
+         #   process_model(_in, _out)
+         #   print("Done processing: " + _in)
+         pass
         except:
-           print("Cannot process: " + _in)
+         #  print("Cannot process: " + _in)
+         pass
+    
+    process_model(*testfiles[case])
         
 # 2015-07-14 04:36 PM    
 # FOLLOW-UP 1: equation parser change
