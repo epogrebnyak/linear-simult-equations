@@ -104,6 +104,15 @@ def print_x_solution(x, names):
     for name, value in zip(names, x):
         print(name, "=", value)
 
+def solve_lin_system(multipliers, equations, values):
+    """
+    Returns X that solves linear system.  Main entry point.
+    See above lines 10-27 for arg types.
+    """    
+    full_equation_set =  make_full_dict_list(multipliers, equations, values)
+    return get_x_solution(full_equation_set)    
+    
+
 if __name__ == "__main__":
     full_equation_set =  make_full_dict_list(multipliers, equations, values)
     pprint(full_equation_set)    
@@ -112,4 +121,9 @@ if __name__ == "__main__":
     
     for lst in (['liq', 'credit', 'ta'],
                 ['capital', 'profit', 'deposit', 'fgap', 'ta']):
-        pprint( x.loc[lst,:]) 
+        pprint( x.loc[lst,:])        
+    
+    
+    
+
+
