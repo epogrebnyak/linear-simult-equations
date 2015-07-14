@@ -11,9 +11,9 @@ Matrix A and B can be defined as a dictionary of multipliers, start values and e
 
 [string2sim.py](string2sim.py) contains full example. 
 
-##Why bother?
+##Why bother? (intent of end-use)
 
-Intent of end-use: in bank bakance sheet projections - parse simple equations which relate current period balance sheet items to previous period balance sheet items, control parameters and text-string equations.
+In bank balance sheet projections - parse simple equations which relate current period balance sheet items to previous period balance sheet items using control parameters (called 'multipliers' in program, because they are part of ```A```) and text-string equations.
 
 Example:
 ```
