@@ -159,21 +159,25 @@ def split_equation_string_to_dictionary(equation, multipliers, free_term = free_
 
     # Split string into tokens, terms and operations
     tokens = [i.strip() for i in re.split(r'([+-])', rhs) if i]
+
     sign = 1 # Default sign
     while tokens:
         token = tokens.pop(0)
 
+        # Those operations flip the sign
         if token == '+':
             sign = 1
         elif token == '-':
             sign = -1
+
+        # Here we hit an actual expression and we add it to dictionary
+        # we need to make sure to reset the sign as well
         elif token == '1':
             key, val = split_multiplicative_term(sign, token, multipliers)
             eq_dict[key] = val
             sign = 1
         elif '*' in token:
             key, val = split_multiplicative_term(sign, token, multipliers)
-            print(key, val)
             eq_dict[key] = val
             sign = 1
         else:
