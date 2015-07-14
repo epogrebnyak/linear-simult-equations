@@ -85,36 +85,40 @@ dict1 = {	'period'	:	1
 # change dict1 type to nparray
 # compare dict_1 to x
 
-variables, values = zip(*dict1.items())
-data1 = pd.DataFrame(np.array(values),
+variables, vals = zip(*dict1.items())
+data1 = pd.DataFrame(np.array(vals),
                      index=variables,
                      columns=['x'])
 
+
 # Our result contains more variables than
 # what we have in x, do we need to match them?
+
+# WARNING we need to add one, because it is not present
+x.ix['one'] = 1.000
+
 print(x.ix[data1.index])
 print(data1)
-
 # To actually assert their equality use np.allclose()
 print('Matching values?', np.allclose(data1, x.ix[data1.index]))
 
 #TODO 3:
 # write back 'x' to corresponding 'value' rows in period 1 in csv sheet input.tab using pandas
 
-def write_tabfile(values, equations, multipliers, tabfile):
-    '''Write a csv file for a linear system.
+def write_tabfile(values0, values1, equations, multipliers, tabfile):
+    '''Write result to csv file.
 
     Parameters:
-    values: dictionary of variable values
+    values0: dictionary of variable values at lag 0
+    values1: dictionary of variable values at lag 1
     equations: list of strings representing relationships
     multipliers: dicionary of multipliers
     tabfile: output filename
     '''
-
     fields = []
     fields.append([None, 'Values', None, None])
-    [fields.append(['value', name, value, None])
-                      for name, value in values.items()]
+    [fields.append(['value', name, values0[name], values1[name.replace('_lag', '')]])
+                      for name in values0]
 
     fields.append([None, None, None, None])
     fields.append([None, 'Multipliers:', None, None])
@@ -129,4 +133,5 @@ def write_tabfile(values, equations, multipliers, tabfile):
     df = pd.DataFrame(fields)
     df.to_csv(tabfile, sep='\t', decimal=',', header=False, index=False)
 
-write_tabfile(x['x'].to_dict(), equations, multipliers, 'output.tab')
+result_fields = [k.replace('_lag', '') for k in values]
+write_tabfile(values, x.ix[result_fields].to_dict()['x'], equations, multipliers, 'output.tab')
