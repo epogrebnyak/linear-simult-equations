@@ -187,7 +187,7 @@ def get_ref_array():
     return pd.DataFrame(np.array(vals),
                          index=variables,
                          columns=['x'])
-
+    
 
 def check_x_against_reference(x, ref):
     """
@@ -364,3 +364,8 @@ if __name__ == "__main__":
 #                     implement after behaviour is specified, not todo now.
 #  OPTIONAL: Round values in 'values' with global PRECISION = 2
 #            114.99999999999997 --> 115.00
+
+
+
+ 
+

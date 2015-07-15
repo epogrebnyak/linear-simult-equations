@@ -53,11 +53,19 @@ def make_full_dict_list(multipliers, equations, values, free_term = FREE_TERM):
     eq_dict_list.extend(val_dict_list)
     return eq_dict_list
     
+def diagnose(a):
+        print()
+        print("Number of equations: ", a.shape[0])
+        print("Number of variables: ", len(a.columns) - 1)
+        print("Rank: ",                np.linalg.matrix_rank(a))         
+    
 def check_rank(a):
     # omit free term from 'num_vars' count 
     num_vars = len(a.columns) - 1
     
-    if np.linalg.matrix_rank(a) != num_vars:
+    rank = np.linalg.matrix_rank(a)
+    diagnose(a)
+    if rank != num_vars:                  
          raise ValueError("Matix does not have full rank")
     else:
          pass
