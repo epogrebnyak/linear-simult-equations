@@ -1,5 +1,5 @@
 	Variables					
-value	period	0	1	2	4	5
+value	period	0	1	2	3	4
 value	credit	100	115,000	132,250	152,088	174,901
 value	liq	20	23,000	26,450	30,418	34,980
 value	capital	30	30,000	30,000	30,000	30,000
@@ -9,7 +9,7 @@ value	fgap	0	1,770	11,202	22,515	36,039
 value	one	1	1,000	1,000	1,000	1,000
 						
 	Lagged variables:					
-value_lag	period_lag		0	1	2	4
+value_lag	period_lag		0	1	3	4
 value_lag	credit_lag		100	115	132,25	152,0875
 value_lag	liq_lag		20	23	26,45	30,4175
 value_lag	capital_lag		30	30	30	30
