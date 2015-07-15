@@ -1,21 +1,27 @@
+"""
+   Import linear model specification from CSV file, iterate model by period and write output CSV file.
+   Model defined by 'multipliers'.  
+   Main entry:  process_model()
+
+"""
+
 from string2sim import solve_lin_system
 import pandas as pd
 import numpy as np
 from pprint import pprint
 import os
 
-
 def read_input_dataframe_from_csv(csv_file):
-     """
+    """
      Reads csv sheet using pandas, returns dataframe.
         Comma is decimal sign here, 1,15 is 1.15
         Separator is  \t (tab)
-     """
-     # COMMENT (NOT TODO): the intent is to be able to switch to reading/writing xls files later.
-
-     # Dirty parse of the input file
-     raw_df = pd.read_csv(csv_file, sep='\t', skip_blank_lines=True, decimal=',')
-     return raw_df
+     # COMMENT: the intent is to be able to switch to reading/writing xls files later.
+    """
+     
+    # Dirty parse of the input file
+    return pd.read_csv(csv_file, sep='\t', skip_blank_lines=True, decimal=',')
+     
 
 def parse_input_dataframe(input_df):
     """
@@ -29,8 +35,8 @@ def parse_input_dataframe(input_df):
 
 def get_input_df(csv_file):
     """
-    Wrapper to get workable dataframe based on input file filename.
-    Also checks if 'csv_file' exists.
+    Get workable dataframe based on input file filename.
+    Also checks if provided 'csv_file' exists.
     """
     if os.path.isfile(csv_file):
         input_df = read_input_dataframe_from_csv(csv_file)
@@ -41,12 +47,13 @@ def get_input_df(csv_file):
 def get_directive_block(csv_file_df, pivot_label):
     """
     Return rows of *csv_file_df* that have *pivot_label* in their first column
+    Pivot labels are 'value', 'equation', etc. 
     """
     return csv_file_df[csv_file_df.ix[:, 0] == pivot_label]
 
 def get_df_block_as_dict(csv_file_df, pivot_label, period, val_col_start = 2, key_col = 1):
     """
-    Generic function to read a part of dataframe (csv_file_df) into a dictionary.
+    Generic function to read a part of 'csv_file_df' dataframe  into a dictionary.
 
     Assumptions:
        pivot_label is in first column: csv_file_df.ix[:, 0]
@@ -228,15 +235,15 @@ def get_input_dataframes(input_csv_file, supplementary_input_csv_file = None):
 
 def get_input_parameters(df1, df2, period):
     """
-    Retrun model specification based on dataframes df1, df2
+    Provide a model specification based on dataframes df1, df2
     Returns a tuple of model specification:
          values, multipliers, equations
     """
     # NOT TODO: may extend to df1, df2, df3
 
     values = get_values_as_dict(df1, period)
-    multipliers = get_multipliers_as_dict(df1, period)
-    equations   = get_equations_as_list(df1)
+    multipliers = get_multipliers_as_dict(df2, period)
+    equations   = get_equations_as_list(df2)
 
     print ('\nMultipliers:')
     pprint(multipliers)
