@@ -136,6 +136,9 @@ def create_output_df(values_list, equations, multipliers_list, write_lagged=True
         names = values_list[0].keys()
         for name in names:
             fields.append(['value_lag', name, None] + [values[name] for values in values_list[:-1]])
+    else:
+        # Blank
+        [fields.append(blank_line) for i in range(len(names) + 2)]
     
     # Multipliers section
     fields.append(blank_line)
@@ -264,37 +267,47 @@ def _get_result_as_dict(x, values):
     result_fields = [k for k in values if not k.endswith('_lag')]
     return x.ix[result_fields].to_dict()['x']
 
+def df_has_block(df, section_name):
+    '''Return True if dataframe has a block given by *section_name*'''
+    return np.any(df.ix[:, 0].str.contains(section_name).values)
+
 def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file = None):
 
     df1, df2 = get_input_dataframes(input_csv_file, supplementary_input_csv_file)
 
-
-    # TODO: periods must hold actual nymber of periods in the model
+    # TODO: periods must hold actual number of periods in the model
     periods = get_periods(df1)
-
-    # Period 0 is reported data, we save it and not process
+    # Check if we need lag handling
+    has_lags = df_has_block(df1, 'value_lag')
+    
+    # Period 0 is reported data, we store it and not process
     values0, multipliers0, equations = get_input_parameters(df1, df2, 0)
+    # We want to know if has lags
+
     values_results = [values0]
     multiplier_results =[multipliers0]
 
     # We start processing from period 1
     for p in periods[1:]:
         print("-------- Period", p)
-        # get system definiton
         values, multipliers, equations = get_input_parameters(df1, df2, p)
-        values_lagged = get_df_block_as_dict(df1, 'value_lag', p)
         
-        # GL: ignore this. The linear system uses lagged variables as an input
-        # here we transform them
-        #values_lagged = {k + '_lag' : values[k]  for k in values}
-
+        if has_lags:
+            # get system definiton
+            values_lagged = get_df_block_as_dict(df1, 'value_lag', p)
+        else:
+            # The linear system uses lagged variables as an input
+            # here we retrieve them from last period
+            last_values = values_results[-1]
+            values_lagged = {k + '_lag' : last_values[k]  for k in last_values}
+            
         # GL: constants are encoded differently now, must change input file
         values_lagged['one'] = 1.0
         values_lagged['half'] = 0.5
 
         # solving the system:
         x = solve_lin_system(multipliers, equations, values_lagged)
-
+        
         # TODO: 'x' must be saved to a new array/dataframe/list holding results for all periods
         # GL: We save into a list containing results + multipliers for the
         # current period
@@ -316,7 +329,7 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
                     equations, 
                     multiplier_results, 
                     output_csv_file,
-                    write_lagged=True)
+                    write_lagged=has_lags)
     values = multipliers = equations = None
 
 
@@ -328,7 +341,7 @@ if __name__ == "__main__":
                 ('input2.tab', 'output2.tab'),
                                     # this is dataset with several periods
                                     # sheet 'input_multiple_period' in examples.xls
-            # ('input3.tab', 'output3.tab')
+                ('input3.tab', 'output3.tab')
                                     # this is dataset with several periods and no lag virables
                                     # sheet 'input_multiple_period_nolag' in examples.xls
     ]
@@ -337,8 +350,8 @@ if __name__ == "__main__":
         _in  = pair[0]
         _out = pair[1]
 
-    process_model(_in, _out)
-    print("Done processing: " + _in)
+        process_model(_in, _out)
+        print("Done processing: " + _in)
     #except:
     #   print("Cannot process: " + _in)
 
@@ -368,4 +381,3 @@ if __name__ == "__main__":
 
 
  
-
