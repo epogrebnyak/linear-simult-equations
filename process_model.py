@@ -316,8 +316,9 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
             values_lagged = {k + '_lag' : last_values[k]  for k in last_values}
 
         # GL: constants are encoded differently now, must change input file
-        values_lagged['one'] = 1.0
-        values_lagged['half'] = 0.5
+        # EP: changed input*.tab
+        # values_lagged['one'] = 1.0
+        # values_lagged['half'] = 0.5
 
         # solving the system:
         x = solve_lin_system(multipliers, equations, values_lagged)
