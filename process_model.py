@@ -1,15 +1,18 @@
 """
    Import linear model specification from CSV file, iterate model by period and write output CSV file.
-   Model defined by 'multipliers'.  
+   Model defined by 'multipliers'.
    Main entry:  process_model()
 
 """
 
-from string2sim import solve_lin_system
 import pandas as pd
 import numpy as np
-from pprint import pprint
 import os
+
+
+from string2sim import solve_lin_system
+from pprint import pprint
+from collections import OrderedDict
 
 def read_input_dataframe_from_csv(csv_file):
     """
@@ -18,10 +21,10 @@ def read_input_dataframe_from_csv(csv_file):
         Separator is  \t (tab)
      # COMMENT: the intent is to be able to switch to reading/writing xls files later.
     """
-     
+
     # Dirty parse of the input file
     return pd.read_csv(csv_file, sep='\t', skip_blank_lines=True, decimal=',')
-     
+
 
 def parse_input_dataframe(input_df):
     """
@@ -47,7 +50,7 @@ def get_input_df(csv_file):
 def get_directive_block(csv_file_df, pivot_label):
     """
     Return rows of *csv_file_df* that have *pivot_label* in their first column
-    Pivot labels are 'value', 'equation', etc. 
+    Pivot labels are 'value', 'equation', etc.
     """
     return csv_file_df[csv_file_df.ix[:, 0] == pivot_label]
 
@@ -67,7 +70,7 @@ def get_df_block_as_dict(csv_file_df, pivot_label, period, val_col_start = 2, ke
     # directive is a subset of csv_file_df
     directives = get_directive_block(csv_file_df, pivot_label)
     # return columns key_col, val_col of 'directives' as dictionary
-    return dict(directives.ix[:,(key_col, val_col)].values)
+    return OrderedDict(directives.ix[:,(key_col, val_col)].values)
 
 def get_multipliers_as_dict(csv_file_df, period):
     """
@@ -128,7 +131,7 @@ def create_output_df(values_list, equations, multipliers_list, write_lagged=True
 
     # Values section
     fields = []
-    fields.append([None, 'Values'] + [None] * nperiods)
+    fields.append([None, 'Variables'] + [None] * nperiods)
 
     names = values_list[0].keys()
     for name in names:
@@ -137,8 +140,8 @@ def create_output_df(values_list, equations, multipliers_list, write_lagged=True
     # Values Lagged section
     if write_lagged:
         fields.append(blank_line)
-        fields.append([None, 'Lagged Values'] + [None] * nperiods)
-        
+        fields.append([None, 'Lagged Variables'] + [None] * nperiods)
+
         # We write lagged values in the appropriate column...
         names = values_list[0].keys()
         for name in names:
@@ -146,13 +149,13 @@ def create_output_df(values_list, equations, multipliers_list, write_lagged=True
     else:
         # Blank
         [fields.append(blank_line) for i in range(len(names) + 2)]
-    
+
     # Multipliers section
     fields.append(blank_line)
     fields.append([None, 'Multipliers:'] + [None] * nperiods)
     names = multipliers_list[0].keys()
     for name in names:
-        fields.append(['multiplier', name] + [mutlipliers[name] 
+        fields.append(['multiplier', name] + [mutlipliers[name]
                        for mutlipliers in multipliers_list])
 
     # Equations section
@@ -197,7 +200,7 @@ def get_ref_array():
     return pd.DataFrame(np.array(vals),
                          index=variables,
                          columns=['x'])
-    
+
 
 def check_x_against_reference(x, ref):
     """
@@ -286,7 +289,7 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
     periods = get_periods(df1)
     # Check if we need lag handling
     has_lags = df_has_block(df1, 'value_lag')
-    
+
     # Period 0 is reported data, we store it and not process
     values0, multipliers0, equations = get_input_parameters(df1, df2, 0)
     # We want to know if has lags
@@ -298,7 +301,7 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
     for p in periods[1:]:
         print("-------- Period", p)
         values, multipliers, equations = get_input_parameters(df1, df2, p)
-        
+
         if has_lags:
             # get system definiton
             values_lagged = get_df_block_as_dict(df1, 'value_lag', p)
@@ -307,14 +310,14 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
             # here we retrieve them from last period
             last_values = values_results[-1]
             values_lagged = {k + '_lag' : last_values[k]  for k in last_values}
-            
+
         # GL: constants are encoded differently now, must change input file
         values_lagged['one'] = 1.0
         values_lagged['half'] = 0.5
 
         # solving the system:
         x = solve_lin_system(multipliers, equations, values_lagged)
-        
+
         # TODO: 'x' must be saved to a new array/dataframe/list holding results for all periods
         # GL: We save into a list containing results + multipliers for the
         # current period
@@ -329,12 +332,12 @@ def process_model(input_csv_file, output_csv_file, supplementary_input_csv_file 
     # save results
     # TODO: must save array/dataframe/list holding results for all periods
     # TODO: dump_csv_output() should  be dump_csv_output(output_df, output_csv_file)
-    # GL: our result would be a list of (value, mutliplier) for each period
+    # GL: we pass lists of values and multipliers
     #     instead of a dataframe, is that OK?
 
-    dump_csv_output(values_results, 
-                    equations, 
-                    multiplier_results, 
+    dump_csv_output(values_results,
+                    equations,
+                    multiplier_results,
                     output_csv_file,
                     write_lagged=has_lags)
     values = multipliers = equations = None
@@ -384,7 +387,3 @@ if __name__ == "__main__":
 #                     implement after behaviour is specified, not todo now.
 #  OPTIONAL: Round values in 'values' with global PRECISION = 2
 #            114.99999999999997 --> 115.00
-
-
-
- 
