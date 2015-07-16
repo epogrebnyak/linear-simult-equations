@@ -40,4 +40,4 @@ equation	fgap = ta - capital - profit - deposit
 equation	capital = capital_lag					
 	# must use a 'one' constant below due to simplistic parser					
 zzzzzzzz	period = period_lag + one		
-equation	period = period + 1		
+equation	period = period_lag + 1		
