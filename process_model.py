@@ -33,7 +33,11 @@ def parse_input_dataframe(input_df):
     # Remove useless rows
     input_df = input_df[input_df.ix[:, 0].notnull()]
     # Strip whitespace from second column, where formulas are located
+
+    # Pandas temporary disable false-positive warning
+    pd.set_option('mode.chained_assignment', None)
     input_df.ix[:, 1] = input_df.ix[:, 1].str.strip()
+    pd.set_option('mode.chained_assignment', 'warn')
     return input_df
 
 def get_input_df(csv_file):
